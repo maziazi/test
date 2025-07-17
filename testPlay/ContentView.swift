@@ -8,14 +8,26 @@
 import SwiftUI
 import RealityKit
 
+enum GameEntityType: UInt8, Codable {
+    case player
+    case item
+    case obstacle
+}
+
+struct GameTagComponent: Component, Codable {
+    var type: GameEntityType
+}
+
 struct ContentView: View {
     @State private var placedObjects: [Entity] = []
     @State private var ballObjectEntity: ModelEntity?
     @State private var isLoaded = false
     @State private var loadingError: String?
-    @State private var cameraMode: CameraMode = .orbit
+    @State private var cameraMode: CameraMode = .followCamera
     @State private var moveTimer: Timer?
     @State private var ballPosition: SIMD3<Float> = SIMD3<Float>(0, 0, -2)
+    
+    @StateObject private var cameraFollowManager = CameraFollowManager()
     
     private let moveInterval: TimeInterval = 0.016
     private let forwardSpeed: Float = 0.02
@@ -23,30 +35,31 @@ struct ContentView: View {
     private let maxSideDistance: Float = 3.0
     
     enum CameraMode: String, CaseIterable {
+        case followCamera = "Follow Camera"
         case dolly = "Dolly"
         case orbit = "Orbit"
-        case pan = "Pan"
-        case tilt = "Tilt"
-        case none = "None"
     }
     
     var body: some View {
         VStack {
-            RealityKitCanvasView(placedObjects: $placedObjects)
-                .edgesIgnoringSafeArea(.all)
-                .onAppear {
-                    loadBallObject()
-                }
-                .realityViewCameraControls(getCameraControl())
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            if cameraMode == .none {
-                                handleBallMovement(translation: value.translation)
-                            }
+            RealityKitCanvasView(
+                placedObjects: $placedObjects,
+                cameraFollowManager: cameraFollowManager
+            )
+            .edgesIgnoringSafeArea(.all)
+            .onAppear {
+                loadBallObject()
+            }
+            .realityViewCameraControls(getCameraControl())
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        if cameraMode == .followCamera {
+                            handleBallMovement(translation: value.translation)
                         }
-                )
+                    }
+            )
             
             VStack(spacing: 16) {
                 HStack {
@@ -102,6 +115,8 @@ struct ContentView: View {
                 placedObjects.removeAll()
                 placedObjects.append(ballModel)
                 
+                cameraFollowManager.setTarget(ballModel)
+                
                 isLoaded = true
                 loadingError = nil
                 
@@ -137,6 +152,11 @@ struct ContentView: View {
         moveTimer?.invalidate()
         moveTimer = Timer.scheduledTimer(withTimeInterval: moveInterval, repeats: true) { _ in
             moveBallForward()
+            
+            // Update camera follow
+            if cameraMode == .followCamera {
+                cameraFollowManager.updateCameraPosition()
+            }
         }
     }
     
@@ -161,9 +181,8 @@ struct ContentView: View {
         }
     }
     
-    // MOVEMENT CONTROLS - Hanya aktif ketika camera mode = none
     func handleBallMovement(translation: CGSize) {
-        guard cameraMode == .none else { return }
+        guard cameraMode == .followCamera else { return }
         
         let sensitivity: Float = 0.01
         let deltaX = Float(translation.width) * sensitivity
@@ -200,25 +219,24 @@ struct ContentView: View {
     }
     
     func handleCameraModeChange(_ newMode: CameraMode) {
-        if newMode == .none {
-            print("🎮 Ball movement enabled - Use drag gesture or buttons to move left/right")
-        } else {
-            print("📷 Camera mode active - Ball movement disabled")
+        switch newMode {
+        case .followCamera:
+            cameraFollowManager.startFollowing()
+            print("📷 Follow Camera mode activated")
+        default:
+            cameraFollowManager.stopFollowing()
+            print("📷 Camera mode: \(newMode.rawValue)")
         }
     }
     
     private func getCameraControl() -> CameraControls {
         switch cameraMode {
+        case .followCamera:
+            return .none
         case .dolly:
             return .dolly
         case .orbit:
             return .orbit
-        case .pan:
-            return .pan
-        case .tilt:
-            return .tilt
-        case .none:
-            return .none
         }
     }
 }

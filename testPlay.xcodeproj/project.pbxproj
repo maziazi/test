@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5C8E56132E28D712003CCE88 /* PlayTest in Frameworks */ = {isa = PBXBuildFile; productRef = 5C8E56122E28D712003CCE88 /* PlayTest */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		5C8E558F2E28B680003CCE88 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5C8E56132E28D712003CCE88 /* PlayTest in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = testPlay;
 			packageProductDependencies = (
+				5C8E56122E28D712003CCE88 /* PlayTest */,
 			);
 			productName = testPlay;
 			productReference = 5C8E55812E28B67F003CCE88 /* testPlay.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 5C8E55782E28B67F003CCE88;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5C8E56112E28D712003CCE88 /* XCLocalSwiftPackageReference "../../../Downloads/PlayTest" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5C8E55822E28B67F003CCE88 /* Products */;
 			projectDirPath = "";
@@ -562,6 +571,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		5C8E56112E28D712003CCE88 /* XCLocalSwiftPackageReference "../../../Downloads/PlayTest" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../../Downloads/PlayTest;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5C8E56122E28D712003CCE88 /* PlayTest */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PlayTest;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5C8E55792E28B67F003CCE88 /* Project object */;
 }

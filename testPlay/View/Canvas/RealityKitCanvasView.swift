@@ -7,26 +7,33 @@
 
 import SwiftUI
 import RealityKit
+
 struct RealityKitCanvasView: View {
     @Binding var placedObjects: [Entity]
+    @ObservedObject var cameraFollowManager: CameraFollowManager
     @StateObject private var coordinator = CanvasCoordinator()
+    
     var body: some View {
         RealityView { content in
             setupScene(content: content, coordinator: coordinator)
             loadStaticRoom(content: content, coordinator: coordinator)
+            
+            cameraFollowManager.setupCamera(content: content)
         } update: { content in
             updateDynamicObjects(content: content)
         }
     }
+    
     private func setupScene(content: any RealityViewContentProtocol, coordinator: CanvasCoordinator) {
         GridManager.createInfiniteGridFloor(content: content, coordinator: coordinator)
     }
-    // FUNGSI 1: Load Room (Static Object - Tidak Bergerak)
+    
     private func loadStaticRoom(content: any RealityViewContentProtocol, coordinator: CanvasCoordinator) {
         Task {
             await loadRoomAsync(content: content, coordinator: coordinator)
         }
     }
+    
     private func loadRoomAsync(content: any RealityViewContentProtocol, coordinator: CanvasCoordinator) async {
         do {
             guard let roomURL = Bundle.main.url(forResource: "sceneFefe", withExtension: "usdz") else {
@@ -50,6 +57,7 @@ struct RealityKitCanvasView: View {
             print("❌ Failed to load room.usdz: \(error)")
         }
     }
+    
     private func updateDynamicObjects(content: any RealityViewContentProtocol) {
         for object in placedObjects {
             if object.name.contains("ball_object") {
