@@ -8,10 +8,9 @@ class CameraFollowManager: ObservableObject {
     private var targetEntity: Entity?
     private var isFollowActive = false
     
-    // Camera Follow Settings
-    @Published var followDistance: Float = 6.0
+    @Published var followDistance: Float = 5.0
     @Published var followHeight: Float = 3.5
-    @Published var followSmoothness: Float = 0.2 // 0.0 = instant, 1.0 = very slow
+    @Published var followSmoothness: Float = 0.2
     @Published var lookAtTarget = true
     @Published var followSideMovement = true
     @Published var followForwardMovement = true
@@ -76,7 +75,6 @@ class CameraFollowManager: ObservableObject {
         }
         
         if followSideMovement {
-            // Camera follows side movement with slight offset
             desiredCameraPosition.x = targetPosition.x
         } else {
             desiredCameraPosition.x = camera.position.x
@@ -84,7 +82,6 @@ class CameraFollowManager: ObservableObject {
         
         desiredCameraPosition.y = targetPosition.y + followHeight
         
-        // Smooth interpolation (soft anchor)
         let currentPosition = camera.position
         let newPosition = simd_mix(currentPosition, desiredCameraPosition, SIMD3<Float>(repeating: followSmoothness))
         
